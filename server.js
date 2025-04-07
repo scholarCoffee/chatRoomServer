@@ -16,7 +16,7 @@ app.use(bodyParser.json({
     limit: '50mb' // 设置请求体大小限制为 50mb
 }));
 app.use(cors());
-app.use(express.static(__dirname + '/data')); // 设置静态文件目录为 public
+app.use(express.static(__dirname + '/data'));
 
 require('./router/files.js')(app); // 引入文件上传路由模块
 require('./router/index.js')(app); // 引入路由模块

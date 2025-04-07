@@ -11,7 +11,7 @@
   "pwd": "",
   "explain": "村里有个姑娘他叫张北北，小北的北，小张的张",
   "birth": "2104-06-12T00:00:000Z",
-  "registerdate": "1104-06-12T00:00:000Z)"
+  "register": "1994-06-12T00:00:000Z"
 },
 {
   "_id": {
@@ -26,7 +26,7 @@
   "pwd": "",
   "explain": "村里有个姑娘他叫咖啡，咖啡的咖",
   "birth": "2004-06-12T00:00:000Z",
-  "registerdate": "1994-06-12T00:00:000Z"
+  "register": "1994-06-12T00:00:000Z"
 },
 {
   "_id": {
@@ -41,7 +41,7 @@
   "pwd": "",
   "explain": "asdsadsadsadsadasdsadsadasdasdsada",
   "birth": "2994-06-12T00:00:000Z",
-  "registerdate": "1994-06-12T00:00:000Z"
+  "register": "1994-06-12T00:00:000Z"
 },
 {
   "_id": {
@@ -56,7 +56,7 @@
   "pwd": "",
   "explain": "asdsadsadsadsadasdsadsadasdasdsada",
   "birth": "2104-11-12T00:00:000Z",
-  "registerdate": "1114-11-12T00:00:000Z"
+  "register": "1114-11-12T00:00:000Z"
 },
 {
   "_id": {
@@ -69,6 +69,62 @@
   "imgurl": "user.png",
   "register": {
     "$date": "2025-04-06T02:14:08.707Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f3d5dfa63046e5b2cc602b"
+  },
+  "name": "张北",
+  "pwd": "$2b$10$DVOoH6wy2EN1aS0JHhvy3e/StkWY6LdEjB/Uf7ITbkHYt/xCJVWze",
+  "email": "324242423@qq.com",
+  "sex": "asexual",
+  "imgurl": "/user/user.png",
+  "register": {
+    "$date": "2025-04-07T13:40:47.286Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f3d64ca63046e5b2cc6030"
+  },
+  "name": "村花",
+  "pwd": "$2b$10$qWkbF4SdAxKYcsoSZnxCoOzDSkFTBUr67e.O.G.EIEihl0uLK3Sq.",
+  "email": "12222@163.com",
+  "sex": "asexual",
+  "imgurl": "/user/user.png",
+  "register": {
+    "$date": "2025-04-07T13:42:36.469Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f3d6b4a63046e5b2cc6035"
+  },
+  "name": "xuzc",
+  "pwd": "$2b$10$Gk9HtZY9lUhrlIoq/MMvrONR2cxCZw1VNlJ93Xj2dQs1g5OP.DHgu",
+  "email": "1234567@qq.com",
+  "sex": "asexual",
+  "imgurl": "/user/user.png",
+  "register": {
+    "$date": "2025-04-07T13:44:20.025Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f3d731a63046e5b2cc603a"
+  },
+  "name": "小明",
+  "pwd": "$2b$10$/5MHbcbymvVkpJ2xeydNV.Az7FLd/wCbRloLbz0/RDWF4dhtdq2Ya",
+  "email": "xiaoming@qq.com",
+  "sex": "asexual",
+  "imgurl": "/user/user.png",
+  "register": {
+    "$date": "2025-04-07T13:46:25.199Z"
   },
   "__v": 0
 }]

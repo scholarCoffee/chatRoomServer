@@ -40,16 +40,16 @@ exports.countUserValue = function (data, type, res) {
     wherestr[type] = data
     User.countDocuments(wherestr)
     .then(count => {
-        console.log('查询成功！'); // 打印成功信息
+        console.log('匹配用户查询成功！'); // 打印成功信息
         res.send({
             code: 200,
-            msg: '查询成功！',
+            msg: '匹配用户查询成功！',
             data: count // 返回查询到的元素个数
         }); // 返回成功信息给前端
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('查询失败！'); // 返回失败信息给前端
+        res.send('匹配用户查询失败！'); // 返回失败信息给前端
     });
 }
 
@@ -66,35 +66,43 @@ exports.userMatch = function (data, pwd, res) {
         'imgurl': 1,
         'pwd':1 
     }
+    console.log('查询条件:', wherestr); // 打印查询条件
+    console.log('查询输出:', out); // 打印查询输出
     User.find(wherestr, out)
     .then(result => {
-        console.log('查询成功！'); // 打印成功信息
-        console.log('查询结果:', result); // 打印查询结果
-
-        result.map(item => {
-            const pwdMatch = bcrypt.verification(pwd, item.pwd); // 验证密码
-            if (pwdMatch) {
-                console.log('密码匹配成功！'); // 打印成功信息
-                let token = jwt.generateToken(item._id); // 生成token
-                let back = {
-                    name: item.name,
-                    imgurl: item.imgurl,
-                    token: token, // 返回token
-                    id: item._id // 返回用户ID
+        console.log('查询成功！', result); // 打印成功信息
+        if (result?.length > 0) {
+            result.map(item => {
+                const pwdMatch = bcrypt.verification(pwd, item.pwd); // 验证密码
+                if (pwdMatch) {
+                    console.log('密码匹配成功！'); // 打印成功信息
+                    let token = jwt.generateToken(item._id); // 生成token
+                    let back = {
+                        name: item.name,
+                        imgurl: item.imgurl,
+                        token: token, // 返回token
+                        id: item._id // 返回用户ID
+                    }
+                    res.send({
+                        code: 200,
+                        msg: '登录成功！',
+                        data: back // 返回登录成功的用户数据
+                    }); // 返回成功信息给前端
+                } else {
+                    console.log('密码匹配失败！'); // 打印失败信息
+                    res.send({
+                        code: 400,
+                        msg: '密码错误！'
+                    }); // 返回失败信息给前端
                 }
-                res.send({
-                    code: 200,
-                    msg: '登录成功！',
-                    data: back // 返回登录成功的用户数据
-                }); // 返回成功信息给前端
-            } else {
-                console.log('密码匹配失败！'); // 打印失败信息
-                res.send({
-                    code: 400,
-                    msg: '密码错误！'
-                }); // 返回失败信息给前端
-            }
-        })  
+            })  
+        } else {
+            console.log('用户不存在！'); // 打印失败信息
+            res.send({
+                code: 300,
+                msg: '用户不存在！'
+            }); // 返回失败信息给前端
+        }
     })
 }  
 
