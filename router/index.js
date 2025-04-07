@@ -3,6 +3,9 @@ var signIn = require('../server/signin.js'); // 引入登录模块
 var search = require('../server/search.js'); // 引入搜索模块
 var user = require('../server/userdetail.js'); // 引入用户详情模块
 var friend = require('../server/friend.js'); // 引入好友模块
+var index = require('../server/index.js'); // 引入首页模块
+var chat = require('../server/chat.js'); // 引入聊天模块
+var group = require('../server/group.js'); // 引入群模块
 
 module.exports = function (app) {
     // 注册页面
@@ -74,5 +77,50 @@ module.exports = function (app) {
     // 删除好友
     app.post('/friend/deleteFriend', function (req, res) {
         friend.deleteFriend(req, res); // 调用查询用户函数
+    });
+
+    // 获取好友列表
+    app.post('/index/getFriend', function (req, res) {
+        index.getFriend(req, res); // 调用查询用户函数
+    });
+
+    // 获取最后一条消息
+    app.post('/index/getLastMsg', function (req, res) {
+        index.getLastMsg(req, res); // 调用查询用户函数
+    });
+
+    // 获取好友未读消息数
+    app.post('/index/unreadMsg', function (req, res) {
+        index.unreadMsg(req, res); // 调用查询用户函数
+    });
+
+    // 更新已读消息
+    app.post('/index/updateMsg', function (req, res) {
+        index.updateMsg(req, res); // 调用查询用户函数
+    });
+
+    // 获取群列表
+    app.post('/index/getGroup', function (req, res) {
+        index.getGroup(req, res); // 调用查询用户函数
+    });
+
+    // 获取最后一条群消息
+    app.post('/index/getLastGroupMsg', function (req, res) {
+        index.getLastGroupMsg(req, res); // 调用查询用户函数
+    });
+
+    // 群消息标已读
+    app.post('/index/updateGroupMsg', function (req, res) {
+        index.updateGroupMsg(req, res); // 调用查询用户函数
+    });
+
+    // 聊天页面
+    app.post('/chat/getMsg', function (req, res) {
+        chat.msg(req, res); // 调用聊天函数
+    });
+
+    // 新建群
+    app.post('/group/createGroup', function (req, res) {
+        group.createGroup(req, res); // 调用新建群函数
     });
 }

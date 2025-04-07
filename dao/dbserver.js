@@ -511,3 +511,323 @@ exports.deleteFriend = function (data, res) {
         }); // 返回成功信息给前端
     })
 }
+
+// 按要求获取用户列表
+exports.getUsers = function(data, res) {
+    const { uid, state } = data // 解构获取请求体中的数据
+    let query = Friend.find({})
+    query.where({
+        'userID': uid, // 用户ID
+        'state': state // 好友状态
+    }).populate('friendID')
+    .sort({ 'lastTime': -1 }) // 按时间排序
+    .exec()
+    .then(result => {
+        let data = result.map(item => {
+            return {
+                id: item.friendID._id, // 好友ID
+                name: item.friendID.name, // 好友名称
+                imgurl: item.friendID.imgurl, // 好友头像
+                markname: item.markname, // 好友备注名
+                time: item.lastTime // 最后通讯时间
+            }
+        })
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: data // 返回查询到的用户数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+// 按要求获取一对一消息
+exports.getOneMsg = function(data, res) {
+    const { uid, fid } = data // 解构获取请求体中的数据
+    let query = Message.findOne({})
+    query.where({
+        $or: [{
+            'userID': uid, // 用户ID
+            'friendID': fid // 好友ID
+        }, {
+            'userID': fid, // 用户ID
+            'friendID': uid // 好友ID
+        }]
+    })
+    .sort({ 'time': -1 }) // 按时间排序
+    .exec()
+    .then(result => {
+        let data = result.map(item => {
+            return {
+                message: item.message, // 消息内容
+                time: item.time, // 消息时间
+                types: item.types, // 消息类型
+            }
+        })
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: data // 返回查询到的用户数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+// 汇总一对一消息未读取
+exports.unreadMsg = function(data, res) {
+    const { uid, fid } = data // 解构获取请求体中的数据
+    let wherestr = {
+        'userID': uid, // 用户ID
+        'friendID': fid, // 好友ID
+        'state': 0 // 消息状态 
+    }
+    Message.countDocuments(wherestr) // 查询未读消息数量
+    .then(count => {
+        console.log('查询成功！'); // 打印成功信息
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: count // 返回查询到的未读消息数量
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+
+// 一对一消息状态修改
+exports.updateMsg = function(data, res) {
+    const { uid, fid } = data // 解构获取请求体中的数据
+    let wherestr = {
+        'userID': fid, // 用户ID
+        'friendID': uid, // 好友ID
+        'state': 1 // 消息状态 
+    }
+    let updatestr = {
+        'state': 0 // 修改消息状态为已读
+    }
+    Message.updateMany(wherestr, updatestr) // 更新消息状态
+    .then(result => {
+        console.log('更新成功！', result); // 打印成功信息
+        res.send({
+            code: 200,
+            msg: '更新成功！',
+            data: result // 返回更新后的消息数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('更新失败！'); // 返回失败信息给前端
+    });
+}
+
+// 新建群
+exports.createGroup = function (data, res) {
+    const { uid, name, imgurl, user } = data // 解构获取请求体中的数据
+    let groupData = {
+        'userId': uid, // 用户ID
+        'name': name, // 群名称
+        'imgurl': imgurl, // 群头像
+        'time': new Date(), // 创建时间
+    }
+    let group = new Group(groupData) // 创建群模型
+    group.save()
+    .then(result => {
+        console.log('创建群成功！', result); // 打印成功信息
+        let wherestr = {
+            'userID': uid, // 用户ID
+            'name': name
+        }
+        let updatestr = {
+            '_id': 1 
+        }
+        return Group.find(wherestr, updatestr) // 查询群成员表是否有记录  
+    })
+    .then(count => {
+        count.map(item => {
+            let groupUserData = {
+                'userID': uid, // 用户ID
+                'groupID': item._id, // 群ID
+                'time': new Date(), // 加入时间
+                'lastTime': new Date(), // 最后聊天时间
+            }
+            this.insertGroupUser(groupUserData)
+            user.map(item => {
+               let fdata = {
+                    groupID: item._id, // 群ID
+                    userID: item.userID, // 用户ID
+                    time: new Date(), // 加入时间
+                    lastTime: new Date(), // 最后聊天时间
+               }
+                this.insertGroupUser(fdata) // 调用添加群成员函数
+            })
+        })
+        res.send({
+            code: 200,
+            msg: '创建群成功！',
+            data: result // 返回创建成功的群数据
+        }); // 返回成功信息给前端
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('创建群失败！'); // 返回失败信息给前端
+    });
+}
+
+// 添加群成员
+exports.insertGroupUser = function (data, res) {
+    let groupUser = new GroupUser(data) // 创建群成员模型
+    groupUser.save()
+    .then(result => {
+        console.log('添加群成员成功！', result); // 打印成功信息
+        res.send({
+            code: 200,
+            msg: '添加群成员成功！',
+            data: result // 返回添加成功的群成员数据
+        }); // 返回成功信息给前端
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('添加群成员失败！'); // 返回失败信息给前端
+    });
+}
+
+
+// 按要求获取群列表
+exports.getGroup = function(uid, res) {
+    let query = GroupUser.find({})
+    query.where({
+        'userID': uid // 用户ID
+    })
+    .populate('groupID')
+    .sort({ 'lastTime': -1 }) // 按时间排序
+    .exec()
+    .then(result => {
+        let data = result.map(item => {
+            return {
+                id: item.groupID._id, // 群ID
+                name: item.groupID.name, // 群名称
+                markname: item.name, // 群备注名
+                imgurl: item.groupID.imgurl, // 群头像
+                lastTime: item.lastTime, // 加入时间
+                tip: item.tip // 提示 未读消息树
+            }
+        })
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: data // 返回查询到的群数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+// 按要求获取群消息
+exports.getOneGroupMsg = function(data, res) {
+    const { gid } = data // 解构获取请求体中的数据
+    let query = GroupMessage.findOne({})
+    query.where({
+        'groupID': gid // 群ID
+    })
+    .populate('groupID')
+    .sort({ 'time': -1 }) // 按时间排序
+    .exec()
+    .then(result => {
+        let data = result.map(item => {
+            return {
+                message: item.message, // 消息内容
+                time: item.time, // 消息时间
+                types: item.types, // 消息类型
+                name: item.userID.name, // 用户名称
+            }
+        })
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: data // 返回查询到的群消息数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+// 群消息状态修改
+exports.updateGroupMsg = function(data, res) {
+    const { gid, uid } = data // 解构获取请求体中的数据
+    let wherestr = {
+        'groupID': gid, // 群ID
+        'userId': uid, //
+    }
+    let updatestr = {
+        'tip': 0 // 修改消息状态为已读
+    }
+    GroupMessage.updateOne(wherestr, updatestr) // 更新消息状态
+    .then(result => {
+        console.log('更新成功！', result); // 打印成功信息
+        res.send({
+            code: 200,
+            msg: '更新成功！',
+            data: result // 返回更新后的消息数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('更新失败！'); // 返回失败信息给前端
+    });
+}
+
+// 消息操作
+// 分页获取数据一对一聊天数据
+exports.msg = function (data, res) {
+    const { nowPage, pageSize, uid, fid } = data // 解构获取请求体中的数据
+    const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
+    let query = Message.find({})
+    query.where({
+        $or: [{
+            'userID': uid, // 用户ID
+            'friendID': fid // 好友ID
+        }, {
+            'userID': fid, // 用户ID
+            'friendID': uid // 好友ID
+        }]
+    })
+    .sort({ 'time': -1 }) // 按时间排序
+    .skip(skipNum) // 跳过指定数量
+    .populate('userID') // 关联查询用户信息
+    .limit(pageSize) // 限制返回数量
+    .exec()
+    .then(result => {
+        const data = result.map(item => {
+            return {
+                id: item._id, // 消息ID
+                message: item.message, // 消息内容
+                time: item.time, // 消息时间
+                types: item.types, // 消息类型
+                fromId: item.userID._id, // 发送者ID
+                imgurl: item.userID.imgurl, // 发送者头像
+            }
+        })
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: data // 返回查询到的消息数据
+        })
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}

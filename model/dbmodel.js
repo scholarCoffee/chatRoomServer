@@ -12,7 +12,7 @@ const UserSchem = new Schema({
     birth: { type: Date }, // 生日
     phone: { type: Number }, // 手机号
     explain: { type: String }, // 个人说明
-    imgurl: { type: String, default: 'user.png' }, // 头像地址
+    imgurl: { type: String, default: '/user/user.png' }, // 头像地址
     register: { type: Date, default: Date.now }, // 注册时间
 });
 
@@ -32,7 +32,7 @@ const MessageSchema = new Schema({
     message: { type: String }, // 消息内容
     types: { type: Number, default: 0 }, // 消息类型 0-文本 1-图片 2-音频连接
     time: { type: Date, default: Date.now }, // 发送时间
-    state: { type: Number, default: 0 }, // 消息状态 0-未读 1-已读
+    state: { type: Number, default: 0 }, // 消息状态 0-已读 1-未读
 });
 
 // 群表
@@ -51,6 +51,7 @@ const GroupUserSchema = new Schema({
     name: { type: String }, // 用户名
     tip: { type: Number, default: 0 }, // 提示 未读消息树
     time: { type: Date, default: Date.now }, // 加入时间
+    lastTime: { type: Date, default: Date.now }, // 最后一次聊天时间
     shield: { type: Number, default: 0 }, // 是否屏蔽 0-不屏蔽 1-屏蔽
 });
 
