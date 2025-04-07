@@ -23,7 +23,6 @@ module.exports = function (app) {
         signIn.signIn(req, res); // 调用登录函数
     });
 
-    // 搜索页面
     // 搜索用户
     app.post('/search/user', function (req, res) {
         search.searchUser(req, res); // 调用搜索用户函数
