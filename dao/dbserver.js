@@ -139,7 +139,7 @@ exports.searchUser = function (body, res) {
 exports.isFriend = function (uid, fid, res) {
     Friend.findOne({
         $or: [
-            { 'uid': uid, 'friendID': fid, 'state': 0 }, // 用户ID和好友ID
+            { 'userID': uid, 'friendID': fid, 'state': 0 }, // 用户ID和好友ID
         ]
     })
     .then(result => {
@@ -339,23 +339,24 @@ exports.updateMarkName = function (data, res) {
     let updatestr = {
         'markname': name
     }
-    Friend.updateOne(wherestr, updatestr) // 更新好友昵称
+    Friend.findOneAndUpdate(wherestr, updatestr, { new: true }) // 更新好友昵称
     .then(result => {
-        console.log('更新成功！'); // 打印成功信息
+        console.log('好友昵称更新成功！'); // 打印成功信息
         res.send({
             code: 200,
-            msg: '更新成功！',
+            msg: '好友昵称更新成功！',
             data: result // 返回更新后的好友数据
         }); // 返回成功信息给前端
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('更新失败！'); // 返回失败信息给前端
+        res.send('好友昵称更新失败！'); // 返回失败信息给前端
     });
 }
 
 // 获取好友昵称
-exports.getMarkName = function (uid, fid, res) {
+exports.getMarkName = function (data, res) {
+    const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
         'userID': uid, // 用户ID
         'friendID': fid // 好友ID

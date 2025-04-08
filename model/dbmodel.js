@@ -20,6 +20,7 @@ const UserSchem = new Schema({
 const FriendSchema = new Schema({
     userID: { type: Schema.Types.ObjectId, ref: 'User' }, // 用户ID
     friendID: { type: Schema.Types.ObjectId, ref: 'User' }, // 好友ID
+    markname: { type: String }, // 好友昵称
     state: { type: Number }, // 好友状态 0-已为好友 1-申请中 2-申请发送对方，对方未同意
     time: { type: Date, default: Date.now }, // 生成时间
     lastTime: { type: Date, default: Date.now }, // 最后一次聊天时间
@@ -39,6 +40,7 @@ const MessageSchema = new Schema({
 const GroupSchema = new Schema({
     userID: { type: Schema.Types.ObjectId, ref: 'User' }, // 创建者ID
     name: { type: String }, // 群名称
+    markname: { type: String }, // 群备注名
     imgurl: { type: String, default: 'group.png' }, // 群头像地址
     time: { type: Date, default: Date.now }, // 创建时间
     notice: { type: String }, // 群公告

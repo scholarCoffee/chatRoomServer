@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 exports.encryption = function (password) {
     console.log('输入的密码:', password); // 打印原始密码
