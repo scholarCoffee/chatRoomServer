@@ -51,4 +51,40 @@
   },
   "state": 1,
   "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f53b37c73a90fc3941076c"
+  },
+  "userID": {
+    "$oid": "67f3d731a63046e5b2cc603a"
+  },
+  "friendID": {
+    "$oid": "67f1e3700c3bae735d0a0b8a"
+  },
+  "message": "小明 请求添加好友~",
+  "types": 0,
+  "time": {
+    "$date": "2025-04-08T15:05:27.850Z"
+  },
+  "state": 1,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f53bb1879675f77d7750df"
+  },
+  "userID": {
+    "$oid": "67f1e3700c3bae735d0a0b8a"
+  },
+  "friendID": {
+    "$oid": "67f3d731a63046e5b2cc603a"
+  },
+  "message": "小花 请求添加好友~",
+  "types": 0,
+  "time": {
+    "$date": "2025-04-08T15:07:29.635Z"
+  },
+  "state": 1,
+  "__v": 0
 }]

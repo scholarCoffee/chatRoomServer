@@ -8,10 +8,11 @@
   "grade": 1,
   "online": 1,
   "imgUrl": "user.png",
-  "pwd": "",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "explain": "村里有个姑娘他叫张北北，小北的北，小张的张",
   "birth": "2104-06-12T00:00:000Z",
-  "register": "1994-06-12T00:00:000Z"
+  "register": "1994-06-12T00:00:000Z",
+  "imgurl": "/user/user.png"
 },
 {
   "_id": {
@@ -23,10 +24,11 @@
   "grade": 0,
   "online": 0,
   "imgUrl": "user.png",
-  "pwd": "",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "explain": "村里有个姑娘他叫咖啡，咖啡的咖",
   "birth": "2004-06-12T00:00:000Z",
-  "register": "1994-06-12T00:00:000Z"
+  "register": "1994-06-12T00:00:000Z",
+  "imgurl": "/user/user.png"
 },
 {
   "_id": {
@@ -41,7 +43,8 @@
   "pwd": "",
   "explain": "asdsadsadsadsadasdsadsadasdasdsada",
   "birth": "2994-06-12T00:00:000Z",
-  "register": "1994-06-12T00:00:000Z"
+  "register": "1994-06-12T00:00:000Z",
+  "imgurl": "/user/user.png"
 },
 {
   "_id": {
@@ -56,7 +59,8 @@
   "pwd": "",
   "explain": "asdsadsadsadsadasdsadsadasdasdsada",
   "birth": "2104-11-12T00:00:000Z",
-  "register": "1114-11-12T00:00:000Z"
+  "register": "1114-11-12T00:00:000Z",
+  "imgurl": "/user/user.png"
 },
 {
   "_id": {
@@ -65,12 +69,14 @@
   "name": "小花",
   "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "email": "22222@qq.com",
-  "sex": "asexual",
-  "imgurl": "user.png",
+  "sex": "female",
+  "imgurl": "/user/user.png",
   "register": {
     "$date": "2025-04-06T02:14:08.707Z"
   },
-  "__v": 0
+  "__v": 0,
+  "explain": "444445",
+  "phone": 1111222
 },
 {
   "_id": {
@@ -119,12 +125,17 @@
     "$oid": "67f3d731a63046e5b2cc603a"
   },
   "name": "小明",
-  "pwd": "$2b$10$/5MHbcbymvVkpJ2xeydNV.Az7FLd/wCbRloLbz0/RDWF4dhtdq2Ya",
-  "email": "xiaoming@qq.com",
-  "sex": "asexual",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
+  "email": "xiaomi@qq.com",
+  "sex": "female",
   "imgurl": "/user/user.png",
   "register": {
     "$date": "2025-04-07T13:46:25.199Z"
   },
-  "__v": 0
+  "__v": 0,
+  "explain": "12312321322",
+  "birth": {
+    "$date": "2007-04-08T00:00:00.000Z"
+  },
+  "phone": 13332312321
 }]
