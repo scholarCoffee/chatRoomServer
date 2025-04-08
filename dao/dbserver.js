@@ -107,7 +107,8 @@ exports.userMatch = function (data, pwd, res) {
 }  
 
 // 搜索用户
-exports.searchUser = function (data, res) {
+exports.searchUser = function (body, res) {
+    const { data } = body || {} // 解构获取请求体中的数据
     let wherestr = {
         $or: [
             { 'name': { $regex: data } }, // 用户名模糊查询
@@ -235,8 +236,10 @@ exports.userDetail = function (uid, res) {
     });
 }
 
-function update(data, update, res) {
-    User.findByIdAndUpdate(data, update) // 更新用户信息
+function update(uId, toData, res) {
+    console.log('更新数据uId:', uId)
+    console.log('更新目标数据：', toData)
+    User.findByIdAndUpdate(uId, toData, { new: true }) // 更新用户信息
     .then(result => {
         console.log('更新成功！', result); // 打印成功信息
         res.send({
@@ -252,13 +255,13 @@ function update(data, update, res) {
 }
 
 // 用户信息修改
-exports.userUpdate = function (data, res) {
+exports.userUpdate = function (req, res) {
     let updatestr = {}
-    const { pwd, id, type } = data // 解构获取请求体中的数据
+    const { pwd, uid, type, data } = req // 解构获取请求体中的数据
     // 判断是否有密码
     if (typeof pwd !== 'undefined') {
         User.find({
-            '_id': id // 用户ID
+            '_id': uid // 用户ID
         }, {
             'pwd': 1 // 只查询密码
         })
@@ -270,16 +273,16 @@ exports.userUpdate = function (data, res) {
                     console.log('密码匹配成功！'); // 打印成功信息
                     // 如果修改密码需加密
                     if (type === 'pwd') {
-                        updatestr[type] = bcrypt.encryption(data.data); // 加密密码
+                        updatestr[type] = bcrypt.encryption(data); // 加密密码
                         console.log('更新数据:', updatestr); // 打印更新数据
-                        update(id, updatestr, res) // 调用更新函数
+                        update(uid, updatestr, res) // 调用更新函数
                     } else {
-                        updatestr[type] = data.data // 其他字段直接赋值
+                        updatestr[type] = data // 其他字段直接赋值
                         User.countDocuments(updatestr) // 查询是否有重复数据
                         .then(count => {
                             console.log('查询成功！'); // 打印成功信息
                             if (count === 0) {
-                                update(id, updatestr, res) // 调用更新函数
+                                update(uid, updatestr, res) // 调用更新函数
                             } else {
                                 
                                 res.send({
@@ -303,14 +306,13 @@ exports.userUpdate = function (data, res) {
             })
         })
     } else if(type === 'name') {
-        updatestr[type] = data.data // 其他字段直接赋值
+        updatestr[type] = data // 其他字段直接赋值
         User.countDocuments(updatestr) // 查询是否有重复数据
         .then(count => {
             console.log('查询成功！'); // 打印成功信息
             if (count === 0) {
-                update(id, updatestr, res) // 调用更新函数
+                update(uid, updatestr, res) // 调用更新函数
             } else {
-                
                 res.send({
                     code: 300,
                     msg: '数据已存在！'
@@ -322,8 +324,8 @@ exports.userUpdate = function (data, res) {
             res.send('查询失败！'); // 返回失败信息给前端
         });
     } else {
-        updatestr[type] = data.data
-        update(data.id, updatestr, res) // 调用更新函数
+        updatestr[type] = data
+        update(uid, updatestr, res) // 调用更新函数
     }
 }
 

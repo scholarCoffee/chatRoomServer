@@ -55,7 +55,7 @@ module.exports = function (app) {
 
     // 修改好友昵称
     app.post('/user/updateMarkName', function (req, res) {
-        user.updatedMarkName(req, res); // 调用查询用户函数
+        user.updateMarkName(req, res); // 调用查询用户函数
     });
 
     // 好友昵称获取
