@@ -40,7 +40,7 @@
   "grade": 1,
   "online": 1,
   "imgUrl": "user.png",
-  "pwd": "",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "explain": "asdsadsadsadsadasdsadsadasdasdsada",
   "birth": "2994-06-12T00:00:000Z",
   "register": "1994-06-12T00:00:000Z",
@@ -56,7 +56,7 @@
   "grade": 1,
   "online": 1,
   "imgUrl": "user.png",
-  "pwd": "",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "explain": "asdsadsadsadsadasdsadsadasdasdsada",
   "birth": "2104-11-12T00:00:000Z",
   "register": "1114-11-12T00:00:000Z",
@@ -83,7 +83,7 @@
     "$oid": "67f3d5dfa63046e5b2cc602b"
   },
   "name": "张北",
-  "pwd": "$2b$10$DVOoH6wy2EN1aS0JHhvy3e/StkWY6LdEjB/Uf7ITbkHYt/xCJVWze",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "email": "324242423@qq.com",
   "sex": "asexual",
   "imgurl": "/user/user.png",
@@ -97,7 +97,7 @@
     "$oid": "67f3d64ca63046e5b2cc6030"
   },
   "name": "村花",
-  "pwd": "$2b$10$qWkbF4SdAxKYcsoSZnxCoOzDSkFTBUr67e.O.G.EIEihl0uLK3Sq.",
+  "pwd": "$2b$10$4/79zn8L8NZOD7/CpMirU.r985EOZ4X7.w4oLbgFeTc3SbUhfTztS",
   "email": "12222@163.com",
   "sex": "asexual",
   "imgurl": "/user/user.png",
@@ -137,5 +137,7 @@
   "birth": {
     "$date": "2007-04-08T00:00:00.000Z"
   },
-  "phone": 13332312321
+  "phone": {
+    "$numberLong": "13332312321"
+  }
 }]

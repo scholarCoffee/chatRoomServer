@@ -530,7 +530,8 @@ exports.getUsers = function(data, res) {
     query.where({
         'userID': uid, // 用户ID
         'state': state // 好友状态
-    }).populate('friendID')
+    })
+    .populate('friendID')
     .sort({ 'lastTime': -1 }) // 按时间排序
     .exec()
     .then(result => {
@@ -540,7 +541,8 @@ exports.getUsers = function(data, res) {
                 name: item.friendID.name, // 好友名称
                 imgurl: item.friendID.imgurl, // 好友头像
                 markname: item.markname, // 好友备注名
-                time: item.lastTime // 最后通讯时间
+                time: item.time, // 
+                lastTime: item.lastTime // 最后通讯时间
             }
         })
         res.send({
@@ -567,21 +569,13 @@ exports.getOneMsg = function(data, res) {
             'userID': fid, // 用户ID
             'friendID': uid // 好友ID
         }]
-    })
-    .sort({ 'time': -1 }) // 按时间排序
+    }).sort({ 'time': -1 }) // 按时间排序
     .exec()
     .then(result => {
-        let data = result.map(item => {
-            return {
-                message: item.message, // 消息内容
-                time: item.time, // 消息时间
-                types: item.types, // 消息类型
-            }
-        })
         res.send({
             code: 200,
             msg: '查询成功！',
-            data: data // 返回查询到的用户数据
+            data: result // 返回查询到的用户数据
         })
     })
     .catch(err => {
