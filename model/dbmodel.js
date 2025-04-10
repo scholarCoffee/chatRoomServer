@@ -41,7 +41,7 @@ const GroupSchema = new Schema({
     userID: { type: Schema.Types.ObjectId, ref: 'User' }, // 创建者ID
     name: { type: String }, // 群名称
     markname: { type: String }, // 群备注名
-    imgurl: { type: String, default: 'group.png' }, // 群头像地址
+    imgurl: { type: String, default: '/group/group.png' }, // 群头像地址
     time: { type: Date, default: Date.now }, // 创建时间
     notice: { type: String }, // 群公告
 });

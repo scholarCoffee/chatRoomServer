@@ -542,7 +542,8 @@ exports.getUsers = function(data, res) {
                 imgurl: item.friendID.imgurl, // 好友头像
                 markname: item.markname, // 好友备注名
                 time: item.time, // 
-                lastTime: item.lastTime // 最后通讯时间
+                lastTime: item.lastTime, // 最后通讯时间
+                type: 0 // 代表私聊
             }
         })
         res.send({
@@ -602,7 +603,7 @@ exports.unreadMsg = function(data, res) {
         })
     })
     .catch(err => {
-        console.log(err); // 打印错误信息
+        console.loet(err); // 打印错误信息
         res.send('查询失败！'); // 返回失败信息给前端
     });
 }
@@ -723,7 +724,8 @@ exports.getGroup = function(uid, res) {
                 markname: item.name, // 群备注名
                 imgurl: item.groupID.imgurl, // 群头像
                 lastTime: item.lastTime, // 加入时间
-                tip: item.tip // 提示 未读消息树
+                tip: item.tip, // 提示 未读消息树
+                type: 1 // 群类型
             }
         })
         res.send({
