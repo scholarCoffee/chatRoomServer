@@ -6,7 +6,9 @@ const ip = require('ip');
 const ipAddress = ip.address();
 const bodyParser = require('body-parser');
 var jwt = require('./dao/jwt.js'); // 引入 jwt 模块
-
+var server = app.listen(8002)
+var io = require('socket.io')(server)
+require('./dao/socket.js')(io)
 app.use(bodyParser.urlencoded({
     extended: true,
     limit: '50mb' // 设置请求体大小限制为 50mb

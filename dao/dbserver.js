@@ -801,8 +801,8 @@ exports.updateGroupMsg = function(data, res) {
 exports.msg = function (data, res) {
     const { nowPage, pageSize, uid, fid } = data // 解构获取请求体中的数据
     const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
-    let query = Message.find({})
-    query.where({
+    Message.find({})
+    .where({
         $or: [{
             'userID': uid, // 用户ID
             'friendID': fid // 好友ID
@@ -817,6 +817,7 @@ exports.msg = function (data, res) {
     .limit(pageSize) // 限制返回数量
     .exec()
     .then(result => {
+        console.log('聊天消息', result)
         const data = result.map(item => {
             return {
                 id: item._id, // 消息ID
@@ -824,6 +825,7 @@ exports.msg = function (data, res) {
                 time: item.time, // 消息时间
                 types: item.types, // 消息类型
                 fromId: item.userID._id, // 发送者ID
+                userId: item.friendID, // 用户ID
                 imgurl: item.userID.imgurl, // 发送者头像
             }
         })
