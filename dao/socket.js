@@ -12,8 +12,9 @@ module.exports = function(io) {
             console.log('发送消息：', msg)
             console.log('发送用户：', fromid)
             console.log('接收用户：', toid)
-            
-            socket.to(users[toid]).emit('msg', msg, fromid) // 发送消息给自己
+            if (users[toid]) {
+                socket.to(users[toid]).emit('msg', msg, fromid) // 发送消息给自己   
+            }
         })
 
         socket.on('disconnecting', () => {
