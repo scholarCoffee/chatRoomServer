@@ -1,3 +1,5 @@
+let dbServer = require('./dbserver')
+
 module.exports = function(io) {
     var users = {}
     io.on('connection', socket => {
@@ -12,9 +14,12 @@ module.exports = function(io) {
             console.log('发送消息：', msg)
             console.log('发送用户：', fromid)
             console.log('接收用户：', toid)
+            dbServer.upFriendLastTime({ uid: fromid, fid: toid }) // 更新最后一条消息时间
+            dbServer.insertMsg(fromid, toid, msg.message, msg.types)
             if (users[toid]) {
-                socket.to(users[toid]).emit('msg', msg, fromid) // 发送消息给自己   
+                socket.to(users[toid]).emit('msg', msg, fromid, 0) // 发送消息给自己   
             }
+            socket.emit('msg', msg, toid, 1)
         })
 
         socket.on('disconnecting', () => {

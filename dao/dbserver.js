@@ -441,15 +441,20 @@ exports.insertMsg = function(uid, fid, msg, type, res) {
     message.save()
     .then(result => {
         console.log('添加消息成功！'); // 打印成功信息
-        res.send({
-            code: 200,
-            msg: '添加消息成功！',
-            data: result // 返回添加成功的消息数据
-        }); // 返回成功信息给前端
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '添加消息成功！',
+                data: result // 返回添加成功的消息数据
+            }); // 返回成功信息给前端
+        }
+
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('添加消息失败！'); // 返回失败信息给前端
+        if (res) {
+            res.send('添加消息失败！'); // 返回失败信息给前端
+        }
     });
 }
 // 好友申请
@@ -589,9 +594,9 @@ exports.getOneMsg = function(data, res) {
 exports.unreadMsg = function(data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
-        'userID': uid, // 用户ID
-        'friendID': fid, // 好友ID
-        'state': 0 // 消息状态 
+        'userID': fid, // 用户ID
+        'friendID': uid, // 好友ID
+        'state': 1 // 消息状态 
     }
     Message.countDocuments(wherestr) // 查询未读消息数量
     .then(count => {
