@@ -39,5 +39,9 @@ module.exports = function(io) {
             
             socket.emit('groupmsg', msg, fromid, gid, name, img, 1) // 
         })
+
+        socket.on('leaveChatRoom', (uid, fid) => {
+            socket.emit('leavechatroom', uid, fid) // 发送离开聊天室的消息
+        })
     })
 }
