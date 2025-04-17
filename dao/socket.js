@@ -29,5 +29,15 @@ module.exports = function(io) {
             }
             console.log('当前在线用户:', users) // 打印当前在线用户
         })
+
+        socket.on('group', data => {
+            socket.join(data)
+        })
+
+        socket.on('groupMsg', (msg, fromid, gid, name, img) => {
+            socket.to(gid).emit('groupmsg', msg, fromid, gid, name, img, 0) // 发送消息给群组
+            
+            socket.emit('groupmsg', msg, fromid, gid, name, img, 1) // 
+        })
     })
 }

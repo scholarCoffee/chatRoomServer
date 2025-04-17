@@ -3,7 +3,12 @@ var dbserver = require('../dao/dbserver.js'); // 引入数据操作模块
 exports.getFriend = function (req, res) {
     console.log('好友请求接收:', req.body); // 打印请求体
     const data = req.body; // 解构获取请求体中的数据
-    dbserver.getUsers(data, res); // 调用查询用户函数
+    if (data.state == 0) {
+        dbserver.doIt(data, res);
+    } else {
+        dbserver.getUsers(data, res); // 调用查询用户函数
+    }
+    
 }
 
 // 获取最后一条消息
