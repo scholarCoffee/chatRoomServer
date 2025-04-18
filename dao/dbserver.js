@@ -903,7 +903,7 @@ exports.getSelfMsg = function (data, res) {
             data: data // 返回查询到的消息数据
         }) // 返回成功信息给前端
         // 更新消息状态为已读
-        updateMsg({ uid: uid, fid: fid }) // 调用更新消息状态函数
+        this.updateMsg({ uid: uid, fid: fid }) // 调用更新消息状态函数
     })
     .then(result => {
         console.log('更新成功！', result); // 打印成功信息
