@@ -549,7 +549,7 @@ exports.getUsers = function(data, res) {
                 markname: item.markname, // 好友备注名
                 time: item.time, // 
                 lastTime: item.lastTime, // 最后通讯时间
-                type: 0 // 代表私聊
+                chatType: 0 // 代表私聊
             }
         })
         if (res) {
@@ -685,15 +685,21 @@ exports.updateMsg = function(data, res) {
     Message.updateMany(wherestr, updatestr) // 更新消息状态
     .then(result => {
         console.log('更新成功！', result); // 打印成功信息
-        res.send({
-            code: 200,
-            msg: '更新成功！',
-            data: result // 返回更新后的消息数据
-        })
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '更新成功！',
+                data: result // 返回更新后的消息数据
+            })
+        }
+
     })
     .catch(err => {
-        console.log(err); // 打印错误信息
-        res.send('更新失败！'); // 返回失败信息给前端
+        console.log('更新失败！', err); // 打印错误信息
+        if (res) {
+            res.send('更新失败！'); // 返回失败信息给前端
+        }
+        
     });
 }
 
@@ -787,7 +793,7 @@ exports.getGroup = function(uid, res) {
                 imgurl: item.groupID.imgurl, // 群头像
                 lastTime: item.lastTime, // 加入时间
                 tip: item.tip, // 提示 未读消息树
-                type: 1 // 群类型
+                chatType: 1 // 代表群聊
             }
         })
         res.send({
@@ -860,7 +866,7 @@ exports.updateGroupMsg = function(data, res) {
 
 // 消息操作
 // 分页获取数据一对一聊天数据
-exports.msg = function (data, res) {
+exports.getSelfMsg = function (data, res) {
     const { nowPage, pageSize, uid, fid } = data // 解构获取请求体中的数据
     const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
     Message.find({})
@@ -895,7 +901,12 @@ exports.msg = function (data, res) {
             code: 200,
             msg: '查询成功！',
             data: data // 返回查询到的消息数据
-        })
+        }) // 返回成功信息给前端
+        // 更新消息状态为已读
+        updateMsg({ uid: uid, fid: fid }) // 调用更新消息状态函数
+    })
+    .then(result => {
+        console.log('更新成功！', result); // 打印成功信息
     })
     .catch(err => {
         console.log(err); // 打印错误信息

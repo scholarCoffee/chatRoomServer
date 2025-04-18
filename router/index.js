@@ -114,8 +114,8 @@ module.exports = function (app) {
     });
 
     // 聊天页面
-    app.post('/chat/getMsg', function (req, res) {
-        chat.msg(req, res); // 调用聊天函数
+    app.post('/chat/getSelfMsg', function (req, res) {
+        chat.getSelfMsg(req, res); // 调用聊天函数
     });
 
     // 新建群
