@@ -4,9 +4,9 @@ exports.getFriend = function (req, res) {
     console.log('好友请求接收:', req.body); // 打印请求体
     const data = req.body; // 解构获取请求体中的数据
     if (data.state == 0) {
-        dbserver.doIt(data, res);
+        dbserver.doIt(data, res); // 调用查询用户函数
     } else {
-        dbserver.getUsers(data, res); // 调用查询用户函数
+        dbserver.getUsers(data, res); 
     }
     
 }

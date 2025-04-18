@@ -530,16 +530,15 @@ exports.deleteFriend = function (data, res) {
 
 // 按要求获取用户列表
 exports.getUsers = function(data, res) {
-    return Promise((resolve) => {
+    return new Promise((resolve) => {
         const { uid, state } = data // 解构获取请求体中的数据
-        let query = Friend.find({})
-        return query.where({
+        return resolve(Friend.find({}).where({
             'userID': uid, // 用户ID
             'state': state // 好友状态
         })
         .populate('friendID')
         .sort({ 'lastTime': -1 }) // 按时间排序
-        .exec()
+        .exec())
     })
     .then(result => {
         let data = result.map(item => {
@@ -553,9 +552,19 @@ exports.getUsers = function(data, res) {
                 type: 0 // 代表私聊
             }
         })
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '查询成功！',
+                data: data // 返回查询到的用户数据
+            }) // 返回成功信息给前端
+        }
         return Promise.resolve(data)
     })
     .catch(err => {
+        if (res) {
+            res.send('查询失败！'); // 返回失败信息给前端
+        }
        return Promise.reject(err) // 返回错误信息
     });
 
@@ -565,8 +574,7 @@ exports.getUsers = function(data, res) {
 exports.getOneMsg = function(data, res) {
     return new Promise((resolve) => {
         const { uid, fid } = data // 解构获取请求体中的数据
-        let query = Message.findOne({})
-        return query.where({
+        return resolve(Message.findOne({}).where({
             $or: [{
                 'userID': uid, // 用户ID
                 'friendID': fid // 好友ID
@@ -575,53 +583,68 @@ exports.getOneMsg = function(data, res) {
                 'friendID': uid // 好友ID
             }]
         }).sort({ 'time': -1 }) // 按时间排序
-        .exec()
+        .exec())
     })
     .then(result => {
-        res.send({
-            code: 200,
-            msg: '查询成功！',
-            data: result // 返回查询到的用户数据
-        })
+        if(res) {
+            res.send({
+                code: 200,
+                msg: '查询成功！',
+                data: result // 返回查询到的用户数据
+            })
+        }
+
+        return Promise.resolve(result)
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('查询失败！'); // 返回失败信息给前端
+        if (res) {
+            res.send('查询失败！'); // 返回失败信息给前端
+        }
+        return Promise.reject(err)
     });
     
 }
 
 // 汇总一对一消息未读取
 exports.unreadMsg = function(data, res) {
-    return Promise((resolve) => {
+    return new Promise((resolve) => {
         const { uid, fid } = data // 解构获取请求体中的数据
         let wherestr = {
             'userID': fid, // 用户ID
             'friendID': uid, // 好友ID
             'state': 1 // 消息状态 
         }
-        return Message.countDocuments(wherestr) // 查询未读消息数量
+        return resolve(Message.countDocuments(wherestr)) // 查询未读消息数量
     })
     .then(count => {
-        console.log('查询成功！'); // 打印成功信息
-        res.send({
-            code: 200,
-            msg: '查询成功！',
-            data: count // 返回查询到的未读消息数量
-        })
+        console.log('查询一对一汇总消息数量：', count); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '查询成功！',
+                data: count // 返回查询到的未读消息数量
+            })
+        }
+        return Promise.resolve(count)
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('查询失败！'); // 返回失败信息给前端
+        if (res) {
+            res.send('查询失败！'); // 返回失败信息给前端
+        }
+        return Promise.reject(err)
     });
-
 }
 
 exports.doIt = async (data, res) => {
+    const { uid } = data // 解构获取请求体中的数据
     try {
-        let friend = await this.getUsers(data, res) // 获取用户列表
+        let friend = await this.getUsers(data) // 获取用户列表
+        console.log('获取用户列表成功！', friend); // 打印成功信息
         for(let i = 0; i < friend.length; i++) {
-            let result = await this.getOneMsg({ uid: data.uid, fid: friend[i].id }, res) // 获取一对一消息
+            let result = await this.getOneMsg({ uid: uid, fid: friend[i].id }) // 获取一对一消息
+            console.log('获取一对一消息成功！', result); // 打印成功信息
             if (result.types == 0) {
                 
             } else if (result.types == 1) {
@@ -632,14 +655,15 @@ exports.doIt = async (data, res) => {
                 result.message = '[位置]'
             }
             friend[i].msg = result.message // 将消息内容添加到用户列表中
-            let readTip = await this.unreadMsg({ uid: data.uid, fid: friend[i].id }, res) // 获取未读消息数量
-            friend[i].tip = readTip.data // 将未读消息数量添加到用户列表中
+            let readTip = await this.unreadMsg({ uid: uid, fid: friend[i].id }) // 获取未读消息数量
+            friend[i].tip = readTip // 将未读消息数量添加到用户列表中
         }
+        console.log('获取最终用户信息！', friend); // 打印成功信息
         res.send({
             code: 200,
             msg: '查询成功！',
             data: friend // 返回查询到的用户数据
-        })
+        }) // 返回成功信息给前端
     } catch (err) {
         console.log(err); // 打印错误信息
         res.send('查询失败！'); // 返回失败信息给前端
