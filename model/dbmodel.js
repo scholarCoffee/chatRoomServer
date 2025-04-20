@@ -40,18 +40,17 @@ const MessageSchema = new Schema({
 const GroupSchema = new Schema({
     userID: { type: Schema.Types.ObjectId, ref: 'User' }, // 创建者ID
     name: { type: String }, // 群名称
-    markname: { type: String }, // 群备注名
+    markname: { type: String, default: '' }, // 群备注名
     imgurl: { type: String, default: '/group/group.png' }, // 群头像地址
     time: { type: Date, default: Date.now }, // 创建时间
-    notice: { type: String }, // 群公告
+    notice: { type: String, default: '' }, // 群公告
 });
 
 // 群成员表
 const GroupUserSchema = new Schema({
     groupID: { type: Schema.Types.ObjectId, ref: 'Group' }, // 群ID
     userID: { type: Schema.Types.ObjectId, ref: 'User' }, // 用户ID
-    name: { type: String }, // 用户名
-    tip: { type: Number, default: 0 }, // 提示 未读消息树
+    tip: { type: Number, default: 0 }, // 提示 未读消息
     time: { type: Date, default: Date.now }, // 加入时间
     lastTime: { type: Date, default: Date.now }, // 最后一次聊天时间
     shield: { type: Number, default: 0 }, // 是否屏蔽 0-不屏蔽 1-屏蔽

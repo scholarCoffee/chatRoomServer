@@ -196,14 +196,56 @@ exports.isInGroup = function (uid, gid, res) {
         console.log('查询结果:', result); // 打印查询结果
         if (result) {
             res.send({
+                code: 400,
+                msg: '不在群内！'
+            }); // 返回失败信息给前端
+        } else {
+            res.send({
                 code: 200,
                 msg: '已在群内！',
                 data: result // 返回查询到的群成员数据
             }); // 返回成功信息给前端
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+// 判断是否是好友，如果是好友则判断是否在群里面
+exports.isInGroupByFriend = function (uid, fid, gid, res) {
+    let wherestr = {
+        $or: [
+            { 'userID': uid, 'friendID': fid, 'state': 0 }, // 用户ID和好友ID
+        ]
+    }
+    Friend.findOne(wherestr) // 查询好友
+    .then(result => {
+        console.log('查询成功！'); // 打印成功信息
+        console.log('查询结果:', result); // 打印查询结果
+        if (result) {
+            GroupUser.findOne({ 'userID': fid, 'groupID': gid }) // 用户ID和群ID
+            .then(result => {
+                console.log('查询成功！'); // 打印成功信息
+                console.log('查询结果:', result); // 打印查询结果
+                if (result) {
+                    res.send({
+                        code: 400,
+                        msg: '不在群内！'
+                    }); // 返回失败信息给前端
+                } else {
+                    res.send({
+                        code: 200,
+                        msg: '已在群内！',
+                        data: result // 返回查询到的群成员数据
+                    }); // 返回成功信息给前端
+                }
+            })
         } else {
             res.send({
-                code: 400,
-                msg: '不在群内！'
+                code: 300,
+                msg: '不是好友！'
             }); // 返回失败信息给前端
         }
     })
@@ -529,7 +571,7 @@ exports.deleteFriend = function (data, res) {
 }
 
 // 按要求获取用户列表
-exports.getUsers = function(data, res) {
+exports.getOnlyUsers = function(data, res) {
     return new Promise((resolve) => {
         const { uid, state } = data // 解构获取请求体中的数据
         return resolve(Friend.find({}).where({
@@ -607,7 +649,7 @@ exports.getOneMsg = function(data, res) {
 }
 
 // 汇总一对一消息未读取
-exports.unreadMsg = function(data, res) {
+exports.unreadSelfMsg = function(data, res) {
     return new Promise((resolve) => {
         const { uid, fid } = data // 解构获取请求体中的数据
         let wherestr = {
@@ -637,14 +679,15 @@ exports.unreadMsg = function(data, res) {
     });
 }
 
-exports.doIt = async (data, res) => {
+exports.getFriendsInMsg = async (data, res) => {
     const { uid } = data // 解构获取请求体中的数据
     try {
-        let friend = await this.getUsers(data) // 获取用户列表
+        let friend = await this.getOnlyUsers(data) // 获取用户列表
         console.log('获取用户列表成功！', friend); // 打印成功信息
         for(let i = 0; i < friend.length; i++) {
             let result = await this.getOneMsg({ uid: uid, fid: friend[i].id }) // 获取一对一消息
             console.log('获取一对一消息成功！', result); // 打印成功信息
+            result = result || {}
             if (result.types == 0) {
                 
             } else if (result.types == 1) {
@@ -654,8 +697,8 @@ exports.doIt = async (data, res) => {
             } else if (result.types == 3) {
                 result.message = '[位置]'
             }
-            friend[i].msg = result.message // 将消息内容添加到用户列表中
-            let readTip = await this.unreadMsg({ uid: uid, fid: friend[i].id }) // 获取未读消息数量
+            friend[i].msg = result.message || '' // 将消息内容添加到用户列表中
+            let readTip = await this.unreadSelfMsg({ uid: uid, fid: friend[i].id }) // 获取未读消息数量
             friend[i].tip = readTip // 将未读消息数量添加到用户列表中
         }
         console.log('获取最终用户信息！', friend); // 打印成功信息
@@ -663,6 +706,37 @@ exports.doIt = async (data, res) => {
             code: 200,
             msg: '查询成功！',
             data: friend // 返回查询到的用户数据
+        }) // 返回成功信息给前端
+    } catch (err) {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    }
+}
+
+exports.getGroupInMsg = async (data, res) => {
+    const { uid } = data // 解构获取请求体中的数据
+    try {
+        let group = await this.getOnlyGroup(uid) // 获取用户列表
+        console.log('当前用户群信息有,' + group)
+        for(let i = 0; i < group.length; i++) {
+            let result = await this.getOneGroupMsg({ gid: group[i].id}) // 获取一对一消息
+            result = result || {}
+            if (result.types == 0) {
+                
+            } else if (result.types == 1) {
+                result.message = '[图片]'
+            } else if (result.types == 2) { 
+                result.message = '[音频]'
+            } else if (result.types == 3) {
+                result.message = '[位置]'
+            }
+            group[i].msg = result.message // 将消息内容添加到用户列表中
+        }
+        console.log('获取最终群信息！', group); // 打印成功信息
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: group // 返回查询到的用户数据
         }) // 返回成功信息给前端
     } catch (err) {
         console.log(err); // 打印错误信息
@@ -705,9 +779,9 @@ exports.updateMsg = function(data, res) {
 
 // 新建群
 exports.createGroup = function (data, res) {
-    const { uid, name, imgurl, user } = data // 解构获取请求体中的数据
+    const { uid, name, imgurl, groupUserInfo } = data // 解构获取请求体中的数据
     let groupData = {
-        'userId': uid, // 用户ID
+        'userID': uid, // 用户ID
         'name': name, // 群名称
         'imgurl': imgurl, // 群头像
         'time': new Date(), // 创建时间
@@ -725,29 +799,26 @@ exports.createGroup = function (data, res) {
         }
         return Group.find(wherestr, updatestr) // 查询群成员表是否有记录  
     })
-    .then(count => {
-        count.map(item => {
-            let groupUserData = {
-                'userID': uid, // 用户ID
-                'groupID': item._id, // 群ID
-                'time': new Date(), // 加入时间
-                'lastTime': new Date(), // 最后聊天时间
+    .then(result => {
+        console.log('查询成功！', result); // 打印成功信息
+        const groupID = result[0]._id
+        console.log('当前群ID：', groupID); // 打印当前群ID
+        groupUserInfo.push(uid)
+        return Promise.all(groupUserInfo.map(value => { 
+            const param = {
+                groupID: groupID, // 群ID
+                userID: value, // 用户ID
+                time: new Date(), // 加入时间
+                lastTime: new Date(), // 最后聊天时间
             }
-            this.insertGroupUser(groupUserData)
-            user.map(item => {
-               let fdata = {
-                    groupID: item._id, // 群ID
-                    userID: item.userID, // 用户ID
-                    time: new Date(), // 加入时间
-                    lastTime: new Date(), // 最后聊天时间
-               }
-                this.insertGroupUser(fdata) // 调用添加群成员函数
-            })
-        })
+            console.log('添加群成员数据:', param); // 打印添加群成员数据
+            this.addGroupUser(param) // 调用添加群成员函数
+        }))
+    })
+    .then(() => {
         res.send({
             code: 200,
-            msg: '创建群成功！',
-            data: result // 返回创建成功的群数据
+            msg: '创建群成功！'
         }); // 返回成功信息给前端
     })
     .catch(err => {
@@ -756,87 +827,257 @@ exports.createGroup = function (data, res) {
     });
 }
 
-// 添加群成员
-exports.insertGroupUser = function (data, res) {
-    let groupUser = new GroupUser(data) // 创建群成员模型
-    groupUser.save()
+// 获取群详情
+exports.getGroupDetail = function (data, res) {
+    const { gid } = data // 解构获取请求体中的数据
+    let groupInfo = {} // 初始化群信息
+    let wherestr = {
+        '_id': gid // 群ID
+    }
+    Group.findOne(wherestr) // 查询群详情
     .then(result => {
-        console.log('添加群成员成功！', result); // 打印成功信息
+        console.log('查询群信息成功！', result); // 打印成功信息
+        groupInfo = result // 将查询到的群信息赋值给groupInfo
+        // 查询群成员信息
+        let groupUser = GroupUser.find({})
+        return groupUser.where({
+            'groupID': gid // 群ID
+        })
+        .populate('userID') // 关联用户ID
+        .sort({ 'lastTime': -1 }) // 按时间排序
+        .exec()
+    })
+    .then(result => {
+        console.log('查询群成员信息成功！', result); // 打印成功信息
+        const groupMemberList = result.map(item => {
+            return {
+                uid: item.userID._id,
+                name: item.userID.name,
+                imgurl: item.userID.imgurl
+            }
+        })
+        const data = {
+            groupInfo,
+            groupMemberList
+        }
         res.send({
             code: 200,
-            msg: '添加群成员成功！',
-            data: result // 返回添加成功的群成员数据
+            msg: '查询成功！',
+            data // 返回查询到的群信息
         }); // 返回成功信息给前端
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('添加群成员失败！'); // 返回失败信息给前端
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+// 添加群成员
+exports.addGroupUser = function (data, res) {
+    let groupUser = new GroupUser(data) // 创建群成员模型
+    groupUser.save()
+    .then(result => {
+        console.log('添加群成员成功！', result); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '添加群成员成功！',
+                data: result // 返回添加成功的群成员数据
+            }); // 返回成功信息给前端
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) { 
+            res.send('添加群成员失败！'); // 返回失败信息给前端
+        }
+    });
+}
+
+// 删除群成员
+exports.deleteGroupUser = function (data, res) {
+    const { gid, uid } = data // 解构获取请求体中的数据
+    let wherestr = {
+        'groupID': gid, // 群ID
+        'userID': uid // 用户ID
+    }
+    GroupUser.deleteMany(wherestr) // 删除群成员
+    .then(result => {
+        console.log('删除群成员成功！', result); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '删除群成员成功！',
+                data: result // 返回删除后的群成员数据
+            }); // 返回成功信息给前端
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) {
+            res.send('删除群成员失败！'); // 返回失败信息给前端
+        }
+    });
+}
+
+// 删除群
+exports.deleteGroup = function (data, res) {
+    const { gid } = data // 解构获取请求体中的数据
+    let wherestr = {
+        '_id': gid // 群ID
+    }
+    Group.deleteMany(wherestr) // 删除群
+    .then(result => {
+        console.log('删除群成功！', result); // 打印成功信息
+        // 删除群相关的群成员
+        let groupUser = GroupUser.find({})
+        return groupUser.where({
+            'groupID': gid // 群ID
+        })
+        .deleteMany()
+        .exec()
+    })
+    .then(result => {
+        console.log('删除群成员成功！', result); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '删除群成功！',
+                data: result // 返回删除后的群成员数据
+            }); // 返回成功信息给前端
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) {
+            res.send('删除群失败！'); // 返回失败信息给前端
+        }
+    });
+}
+
+// 更新群信息
+exports.updateGroup = function (data, res) {
+    const { gid, value, type } = data || {}// 解构获取请求体中的数据
+    let wherestr = {
+        '_id': gid // 群ID
+    }
+    let updatestr = {}
+    updatestr[type] = value
+    Group.findOneAndUpdate(wherestr, updatestr, { new: true }) // 更新群信息
+    .then(result => {
+        console.log('更新群信息成功！', result); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '更新群信息成功！',
+                data: result // 返回更新后的群数据
+            }); // 返回成功信息给前端
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) {
+            res.send('更新群信息失败！'); // 返回失败信息给前端
+        }
+    });
+}
+
+// 添加群消息
+exports.insertGroupMsg = function(data, res) {
+    let groupMessage = new GroupMessage(data) // 创建群消息模型
+    groupMessage.save()
+    .then(result => {
+        console.log('添加群消息成功！', result); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '添加群消息成功！',
+                data: result // 返回添加成功的群消息数据
+            }); // 返回成功信息给前端
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) {
+            res.send('添加群消息失败！'); // 返回失败信息给前端
+        }
     });
 }
 
 
 // 按要求获取群列表
-exports.getGroup = function(uid, res) {
-    let query = GroupUser.find({})
-    query.where({
-        'userID': uid // 用户ID
-    })
-    .populate('groupID')
-    .sort({ 'lastTime': -1 }) // 按时间排序
-    .exec()
-    .then(result => {
-        let data = result.map(item => {
-            return {
-                id: item.groupID._id, // 群ID
-                name: item.groupID.name, // 群名称
-                markname: item.name, // 群备注名
-                imgurl: item.groupID.imgurl, // 群头像
-                lastTime: item.lastTime, // 加入时间
-                tip: item.tip, // 提示 未读消息树
-                chatType: 1 // 代表群聊
+exports.getOnlyGroup = function(uid, res) {
+    return new Promise((resolve, reject) => {
+        let query = GroupUser.find({})
+        console.log('群用户uid' + uid)
+        query.where({
+            'userID': uid // 用户ID
+        })
+        .populate('groupID')
+        .sort({ 'lastTime': -1 }) // 按时间排序
+        .exec()
+        .then(result => {
+            let data = result.map(item => {
+                return {
+                    id: item.groupID._id, // 群ID
+                    name: item.groupID.name, // 群名称
+                    markname: item.name, // 群备注名
+                    imgurl: item.groupID.imgurl, // 群头像
+                    lastTime: item.lastTime, // 加入时间
+                    tip: item.tip, // 提示 未读消息树
+                    chatType: 1 // 代表群聊
+                }
+            })
+            resolve(data) // 返回查询到的群数据
+            if (res) {
+                res.send({
+                    code: 200,
+                    msg: '查询成功！',
+                    data: data // 返回查询到的群数据
+                })
             }
         })
-        res.send({
-            code: 200,
-            msg: '查询成功！',
-            data: data // 返回查询到的群数据
-        })
+        .catch(err => {
+            console.log(err); // 打印错误信息
+            reject(err)
+            if (res) {
+                res.send('查询失败！'); // 返回失败信息给前端
+            }
+        });
     })
-    .catch(err => {
-        console.log(err); // 打印错误信息
-        res.send('查询失败！'); // 返回失败信息给前端
-    });
+
 }
 
 // 按要求获取群消息
 exports.getOneGroupMsg = function(data, res) {
-    const { gid } = data // 解构获取请求体中的数据
-    let query = GroupMessage.findOne({})
-    query.where({
-        'groupID': gid // 群ID
-    })
-    .populate('groupID')
-    .sort({ 'time': -1 }) // 按时间排序
-    .exec()
-    .then(result => {
-        let data = result.map(item => {
-            return {
-                message: item.message, // 消息内容
-                time: item.time, // 消息时间
-                types: item.types, // 消息类型
-                name: item.userID.name, // 用户名称
+    return new Promise((resolve, reject) => {
+        const { gid } = data // 解构获取请求体中的数据
+        let query = GroupMessage.findOne({})
+        query.where({
+            'groupID': gid // 群ID
+        })
+        .populate('groupID')
+        .sort({ 'time': -1 }) // 按时间排序
+        .exec()
+        .then(result => {
+            console.log('群消息：', result)
+            if (res) {
+                res.send({
+                    code: 200,
+                    msg: '查询成功！',
+                    data: result // 返回查询到的群消息数据
+                })
             }
+            resolve(result)
         })
-        res.send({
-            code: 200,
-            msg: '查询成功！',
-            data: data // 返回查询到的群消息数据
-        })
+        .catch(err => {
+            console.log(err); // 打印错误信息
+            reject(err)
+            if (res) {
+                res.send('查询失败！'); // 返回失败信息给前端
+            }
+        });
     })
-    .catch(err => {
-        console.log(err); // 打印错误信息
-        res.send('查询失败！'); // 返回失败信息给前端
-    });
 }
 
 // 群消息状态修改
@@ -844,23 +1085,27 @@ exports.updateGroupMsg = function(data, res) {
     const { gid, uid } = data // 解构获取请求体中的数据
     let wherestr = {
         'groupID': gid, // 群ID
-        'userId': uid, //
+        'userID': uid, //
     }
     let updatestr = {
         'tip': 0 // 修改消息状态为已读
     }
-    GroupMessage.updateOne(wherestr, updatestr) // 更新消息状态
+    GroupUser.updateOne(wherestr, updatestr) // 更新消息状态
     .then(result => {
         console.log('更新成功！', result); // 打印成功信息
-        res.send({
-            code: 200,
-            msg: '更新成功！',
-            data: result // 返回更新后的消息数据
-        })
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '更新成功！',
+                data: result // 返回更新后的消息数据
+            })
+        }
     })
     .catch(err => {
         console.log(err); // 打印错误信息
-        res.send('更新失败！'); // 返回失败信息给前端
+        if (res) {
+            res.send('更新失败！'); // 返回失败信息给前端
+        }
     });
 }
 
@@ -904,6 +1149,53 @@ exports.getSelfMsg = function (data, res) {
         }) // 返回成功信息给前端
         // 更新消息状态为已读
         this.updateMsg({ uid: uid, fid: fid }) // 调用更新消息状态函数
+    })
+    .then(result => {
+        console.log('更新成功！', result); // 打印成功信息
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('查询失败！'); // 返回失败信息给前端
+    });
+}
+
+
+// 分页获取数据一对一聊天数据
+exports.getGroupMsg = function (data, res) {
+    const { nowPage, pageSize, uid, gid } = data // 解构获取请求体中的数据
+    const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
+    Message.find({})
+    .where({
+        $or: [{
+            'userID': uid, // 用户ID
+            'groupID': gid // 好友ID
+        }]
+    })
+    .sort({ 'time': -1 }) // 按时间排序
+    .skip(skipNum) // 跳过指定数量
+    .populate('userID') // 关联查询用户信息
+    .limit(pageSize) // 限制返回数量
+    .exec()
+    .then(result => {
+        console.log('聊天消息', result)
+        const data = result.map(item => {
+            return {
+                id: item._id, // 消息ID
+                message: item.message, // 消息内容
+                time: item.time, // 消息时间
+                types: item.types, // 消息类型
+                fromId: item.userID._id, // 发送者ID
+                groupId: item.groupID, // 用户ID
+                imgurl: item.userID.imgurl, // 发送者头像
+            }
+        })
+        res.send({
+            code: 200,
+            msg: '查询成功！',
+            data: data // 返回查询到的消息数据
+        }) // 返回成功信息给前端
+        // 更新消息状态为已读
+        this.updateGroupMsg({ uid: uid, gid: gid }) // 调用更新消息状态函数
     })
     .then(result => {
         console.log('更新成功！', result); // 打印成功信息

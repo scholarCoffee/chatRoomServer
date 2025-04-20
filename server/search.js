@@ -26,3 +26,11 @@ exports.isInGroup = function (req, res) {
     const { uid, gid } = req.body; // 解构获取请求体中的数据
     dbServer.isInGroup(uid, gid, res); // 调用查询群函数
 }
+
+
+// 判断是否是好友，如果是好友则判断是否在群里面
+exports.isInGroupByFriend = function (req, res) {
+    console.log('好友群判断请求接收:', req.body); // 打印请求体
+    const { uid, fid, gid } = req.body; // 解构获取请求体中的数据
+    dbServer.isInGroupByFriend(uid, fid, gid, res); // 调用查询群函数
+}

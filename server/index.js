@@ -4,11 +4,21 @@ exports.getFriend = function (req, res) {
     console.log('好友请求接收:', req.body); // 打印请求体
     const data = req.body; // 解构获取请求体中的数据
     if (data.state == 0) {
-        dbserver.doIt(data, res); // 调用查询用户函数
+        dbserver.getFriendsInMsg(data, res); // 调用查询用户函数
     } else {
-        dbserver.getUsers(data, res); 
+        dbserver.getOnlyUsers(data, res); 
     }
-    
+}
+
+// 获取群列表
+exports.getGroup = function (req, res) {
+    console.log('群组请求接收:', req.body); // 打印请求体
+    const { state } = req.body; // 解构获取请求体中的数据
+    if (state == 0) {
+        dbserver.getGroupInMsg(req.body, res); // 调用查询用户函数
+    } else {
+        dbserver.getOnlyGroup(req.body, res); // 调用查询用户函数
+    }
 }
 
 // 获取最后一条消息
@@ -19,10 +29,10 @@ exports.getLastMsg = function (req, res) {
 }
 
 // 获取未读消息
-exports.unreadMsg = function (req, res) {
+exports.unreadSelfMsg = function (req, res) {
     console.log('未读消息请求接收:', req.body); // 打印请求体
     const data = req.body; // 解构获取请求体中的数据
-    dbserver.unreadMsg(data, res); // 调用查询用户函数
+    dbserver.unreadSelfMsg(data, res); // 调用查询用户函数
 }
 
 // 更新已读消息
@@ -39,13 +49,6 @@ exports.createGroup = function (req, res) {
     dbserver.createGroup(data, res); // 调用查询用户函数
 }
 
-// 获取群列表
-exports.getGroup = function (req, res) {
-    console.log('群组请求接收:', req.body); // 打印请求体
-    const { uid } = req.body; // 解构获取请求体中的数据
-    dbserver.getGroup(uid, res); // 调用查询用户函数
-}
-
 // 获取最后一条消息
 exports.getLastGroupMsg = function (req, res) {
     console.log('最后一条群消息请求接收:', req.body); // 打印请求体
@@ -59,3 +62,4 @@ exports.updateGroupMsg = function (req, res) {
     const data = req.body; // 解构获取请求体中的数据
     dbserver.updateGroupMsg(data, res); // 调用查询用户函数
 }
+

@@ -43,6 +43,11 @@ module.exports = function (app) {
         search.isInGroup(req, res); // 调用判断群函数
     });
 
+    // 判断是否在群里面
+    app.post('/search/isInGroupByFriend', function (req, res) {
+        search.isInGroupByFriend(req, res); // 调用判断群函数
+    });
+
     // 用户详情
     app.post('/user/detail', function (req, res) {
         user.userDetail(req, res); // 调用查询用户函数
@@ -89,8 +94,8 @@ module.exports = function (app) {
     });
 
     // 获取好友未读消息数
-    app.post('/index/unreadMsg', function (req, res) {
-        index.unreadMsg(req, res); // 调用查询用户函数
+    app.post('/index/unreadSelfMsg', function (req, res) {
+        index.unreadSelfMsg(req, res); // 调用查询用户函数
     });
 
     // 更新已读消息
@@ -118,8 +123,33 @@ module.exports = function (app) {
         chat.getSelfMsg(req, res); // 调用聊天函数
     });
 
+    // 聊天页面
+    app.post('/chat/getGroupMsg', function (req, res) {
+        chat.getGroupMsg(req, res); // 调用聊天函数
+    });
+
     // 新建群
     app.post('/group/createGroup', function (req, res) {
         group.createGroup(req, res); // 调用新建群函数
+    });
+
+    // 查询群详情
+    app.post('/group/getGroupDetail', function (req, res) {
+        group.getGroupDetail(req, res); // 调用查询群详情函数
+    });
+
+    // 新增群成员
+    app.post('/group/addGroupUser', function (req, res) {
+        group.addGroupUser(req, res); // 调用新增群成员函数
+    });
+
+    // 删除群成员
+    app.post('/group/deleteGroup', function (req, res) {
+        group.deleteGroup(req, res); // 调用删除群成员函数
+    });
+
+    // 修改群信息
+    app.post('/group/updateGroup', function (req, res) {
+        group.updateGroup(req, res); // 调用修改群信息函数
     });
 }
