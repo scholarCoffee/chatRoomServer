@@ -442,7 +442,7 @@ exports.buildFriend = function (uid, fid, state, res) {
 }
 
 // 好友最后通讯时间
-exports.upFriendLastTime = function (data, res) {
+exports.updateFriendLastTime = function (data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
         $or: [{
@@ -514,7 +514,7 @@ exports.applyFriend = function (data, res) {
             this.buildFriend(data.fid, data.uid, 1, res) // 调用添加好友函数
         } else {
             console.log('已申请过！'); // 打印失败信息
-            this.upFriendLastTime(data) // 更新最后通讯时间
+            this.updateFriendLastTime(data) // 更新最后通讯时间
         }
         this.insertMsg(data.uid, data.fid, data.msg, data.type, res) // 调用添加消息函数
     })
@@ -717,7 +717,6 @@ exports.getGroupInMsg = async (data, res) => {
     const { uid } = data // 解构获取请求体中的数据
     try {
         let group = await this.getOnlyGroup(uid) // 获取用户列表
-        console.log('当前用户群信息有,' + group)
         for(let i = 0; i < group.length; i++) {
             let result = await this.getOneGroupMsg({ gid: group[i].id}) // 获取一对一消息
             result = result || {}
@@ -1077,6 +1076,34 @@ exports.getOneGroupMsg = function(data, res) {
             }
         });
     })
+}
+
+// 更新群消息时间
+exports.updateGroupMessageLastTime = function(data, res) {
+    const { groupID } = data // 解构获取请求体中的数据
+    let wherestr = {
+        'groupID': groupID // 群ID
+    }
+    let updatestr = {
+        'lastTime': new Date() // 更新最后聊天时间
+    }
+    GroupUser.updateMany(wherestr, updatestr) // 更新群消息时间
+    .then(result => {
+        console.log('群消息时间更新成功！', result); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '群消息时间更新成功！',
+                data: result // 返回更新后的群消息数据
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) {
+            res.send('更新失败！'); // 返回失败信息给前端
+        }
+    });
 }
 
 // 群消息状态修改
