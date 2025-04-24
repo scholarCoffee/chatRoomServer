@@ -660,7 +660,7 @@ exports.unreadSelfMsg = function(data, res) {
         return resolve(Message.countDocuments(wherestr)) // 查询未读消息数量
     })
     .then(count => {
-        console.log('查询一对一汇总消息数量：', count); // 打印成功信息
+        // console.log('查询一对一汇总消息数量：', count); // 打印成功信息
         if (res) {
             res.send({
                 code: 200,
@@ -683,10 +683,10 @@ exports.getFriendsInMsg = async (data, res) => {
     const { uid } = data // 解构获取请求体中的数据
     try {
         let friend = await this.getOnlyUsers(data) // 获取用户列表
-        console.log('获取用户列表成功！', friend); // 打印成功信息
+        // console.log('获取用户列表成功！', friend); // 打印成功信息
         for(let i = 0; i < friend.length; i++) {
             let result = await this.getOneMsg({ uid: uid, fid: friend[i].id }) // 获取一对一消息
-            console.log('获取一对一消息成功！', result); // 打印成功信息
+            // console.log('获取一对一消息成功！', result); // 打印成功信息
             result = result || {}
             if (result.types == 0) {
                 
@@ -701,7 +701,7 @@ exports.getFriendsInMsg = async (data, res) => {
             let readTip = await this.unreadSelfMsg({ uid: uid, fid: friend[i].id }) // 获取未读消息数量
             friend[i].tip = readTip // 将未读消息数量添加到用户列表中
         }
-        console.log('获取最终用户信息！', friend); // 打印成功信息
+        // console.log('获取最终用户信息！', friend); // 打印成功信息
         res.send({
             code: 200,
             msg: '查询成功！',
@@ -1009,7 +1009,6 @@ exports.insertGroupMsg = function(data, res) {
 exports.getOnlyGroup = function(uid, res) {
     return new Promise((resolve, reject) => {
         let query = GroupUser.find({})
-        console.log('群用户uid' + uid)
         query.where({
             'userID': uid // 用户ID
         })

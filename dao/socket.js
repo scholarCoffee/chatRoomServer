@@ -6,8 +6,9 @@ module.exports = function(io) {
         socket.on('login', id => {
             console.log('用户登录：', id)
             socket.name = id
-            users[id] = socket.id // 将用户id和socket.id存储在users对象中   
-            socket.emit('msgFront', socket.id)
+            if (!users[id]) {
+                users[id] = socket.id // 将用户id和socket.id存储在users对象中
+            }
         })
 
         socket.on('msgServer', (msg, fromid, toid) => {
@@ -30,8 +31,8 @@ module.exports = function(io) {
             console.log('当前在线用户:', users) // 打印当前在线用户
         })
 
-        socket.on('groupServer', data => {
-            socket.join(data)
+        socket.on('groupServer', id => {
+            socket.join(id) // 加入群组
         })
 
         socket.on('groupMsgServer', (msg, fromid, gid, name, img) => {
