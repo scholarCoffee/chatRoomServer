@@ -1164,11 +1164,11 @@ exports.getSelfMsg = function (data, res) {
 exports.getGroupMsg = function (data, res) {
     const { nowPage, pageSize, uid, gid } = data // 解构获取请求体中的数据
     const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
-    Message.find({})
+    GroupMessage.find({})
     .where({
         $or: [{
             'userID': uid, // 用户ID
-            'groupID': gid // 好友ID
+            'groupID': gid // 群ID
         }]
     })
     .sort({ 'time': -1 }) // 按时间排序
@@ -1185,7 +1185,8 @@ exports.getGroupMsg = function (data, res) {
                 time: item.time, // 消息时间
                 types: item.types, // 消息类型
                 fromId: item.userID._id, // 发送者ID
-                groupId: item.groupID, // 用户ID
+                groupId: item.groupID, // 群ID
+                name: item.userID.name, // 发送者名称
                 imgurl: item.userID.imgurl, // 发送者头像
             }
         })
