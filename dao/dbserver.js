@@ -283,7 +283,7 @@ function update(uId, toData, res) {
     console.log('更新目标数据：', toData)
     User.findByIdAndUpdate(uId, toData, { new: true }) // 更新用户信息
     .then(result => {
-        console.log('更新成功！', result); // 打印成功信息
+        // console.log('更新成功！', result); // 打印成功信息
         res.send({
             code: 200,
             msg: '更新成功！',
@@ -679,6 +679,37 @@ exports.unreadSelfMsg = function(data, res) {
     });
 }
 
+// 汇总一对一消息未读取
+exports.unreadGroupMsg = function(data, res) {
+    return new Promise((resolve) => {
+        const { gid } = data // 解构获取请求体中的数据
+        let wherestr = {
+            'groupID': gid, // 群组ID
+            'state': 1 // 消息状态 
+        }
+        // console.log('汇总一对一未读消息', wherestr)
+        return resolve(GroupMessage.countDocuments(wherestr)) // 查询未读消息数量
+    })
+    .then(count => {
+        // console.log('查询一对一汇总消息数量：', count); // 打印成功信息
+        if (res) {
+            res.send({
+                code: 200,
+                msg: '查询成功！',
+                data: count // 返回查询到的未读消息数量
+            })
+        }
+        return Promise.resolve(count)
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        if (res) {
+            res.send('查询失败！'); // 返回失败信息给前端
+        }
+        return Promise.reject(err)
+    });
+}
+
 exports.getFriendsInMsg = async (data, res) => {
     const { uid } = data // 解构获取请求体中的数据
     try {
@@ -719,19 +750,24 @@ exports.getGroupInMsg = async (data, res) => {
         let group = await this.getOnlyGroup(uid) // 获取用户列表
         for(let i = 0; i < group.length; i++) {
             let result = await this.getOneGroupMsg({ gid: group[i].id})
-            result = result || {}
-            if (result.types == 0) {
+            if (result) {
+                if (result.types == 0) {
                 
-            } else if (result.types == 1) {
-                result.message = '[图片]'
-            } else if (result.types == 2) { 
-                result.message = '[音频]'
-            } else if (result.types == 3) {
-                result.message = '[位置]'
+                } else if (result.types == 1) {
+                    result.message = '[图片]'
+                } else if (result.types == 2) { 
+                    result.message = '[音频]'
+                } else if (result.types == 3) {
+                    result.message = '[位置]'
+                }
+                group[i].msg = result.message // 将消息内容添加到用户列表中
+                // console.log('result:', result)
+                group[i].username = result.userID && result.userID.name // 将用户名称添加到用户列表中
+                let readGroupTip = await this.unreadGroupMsg({  uid: uid, gid: group[i].id })
+                group[i].tip = readGroupTip
             }
-            group[i].msg = result.message // 将消息内容添加到用户列表中
         }
-        console.log('获取最终群信息！', group); // 打印成功信息
+        // console.log('获取最终群信息！', group); // 打印成功信息
         res.send({
             code: 200,
             msg: '查询成功！',
@@ -986,7 +1022,7 @@ exports.insertGroupMsg = function(data, res) {
     let groupMessage = new GroupMessage(data) // 创建群消息模型
     groupMessage.save()
     .then(result => {
-        console.log('添加群消息成功！', result); // 打印成功信息
+        // console.log('添加群消息成功！', result); // 打印成功信息
         if (res) {
             res.send({
                 code: 200,
@@ -1012,7 +1048,6 @@ exports.getOnlyGroup = function(uid, res) {
             'userID': uid // 用户ID
         })
         .populate('groupID')
-        .populate('userID') // 关联用户ID
         .sort({ 'lastTime': -1 }) // 按时间排序
         .exec()
         .then(result => {
@@ -1020,13 +1055,11 @@ exports.getOnlyGroup = function(uid, res) {
             let data = result.map(item => {
                 return {
                     id: item.groupID._id, // 群ID
-                    username: item.userID.name, // 用户名称
                     userID: item.userID._id, // 用户ID
                     name: item.groupID.name, // 群名称
                     markname: item.name, // 群备注名
                     imgurl: item.groupID.imgurl, // 群头像
                     lastTime: item.lastTime, // 加入时间
-                    tip: item.tip, // 提示 未读消息树
                     chatType: 1 // 代表群聊
                 }
             })
@@ -1059,10 +1092,11 @@ exports.getOneGroupMsg = function(data, res) {
             'groupID': gid // 群ID
         })
         .populate('groupID')
+        .populate('userID') // 关联用户ID
         .sort({ 'time': -1 }) // 按时间排序
         .exec()
         .then(result => {
-            console.log('群消息：', result)
+            // console.log('群消息：', result)
             if (res) {
                 res.send({
                     code: 200,
@@ -1093,7 +1127,7 @@ exports.updateGroupMessageLastTime = function(data, res) {
     }
     GroupUser.updateMany(wherestr, updatestr) // 更新群消息时间
     .then(result => {
-        console.log('群消息时间更新成功！', result); // 打印成功信息
+        // console.log('群消息时间更新成功！', result); // 打印成功信息
         if (res) {
             res.send({
                 code: 200,
@@ -1112,17 +1146,17 @@ exports.updateGroupMessageLastTime = function(data, res) {
 
 // 群消息状态修改
 exports.updateGroupMsg = function(data, res) {
-    const { gid, uid } = data // 解构获取请求体中的数据
+    const { gid } = data // 解构获取请求体中的数据
     let wherestr = {
         'groupID': gid, // 群ID
-        'userID': uid, //
+        'state': 1 // 消息状态 
     }
     let updatestr = {
-        'tip': 0 // 修改消息状态为已读
+        'state': 0 // 修改消息状态为已读
     }
-    GroupUser.updateOne(wherestr, updatestr) // 更新消息状态
+    GroupMessage.updateMany(wherestr, updatestr) // 更新消息状态
     .then(result => {
-        console.log('更新成功！', result); // 打印成功信息
+        // console.log('更新成功！', result); // 打印成功信息
         if (res) {
             res.send({
                 code: 200,
@@ -1160,7 +1194,7 @@ exports.getSelfMsg = function (data, res) {
     .limit(pageSize) // 限制返回数量
     .exec()
     .then(result => {
-        console.log('聊天消息', result)
+        // console.log('聊天消息', result)
         const data = result.map(item => {
             return {
                 id: item._id, // 消息ID
@@ -1181,7 +1215,7 @@ exports.getSelfMsg = function (data, res) {
         this.updateMsg({ uid: uid, fid: fid }) // 调用更新消息状态函数
     })
     .then(result => {
-        console.log('更新成功！', result); // 打印成功信息
+        // console.log('更新成功！', result); // 打印成功信息
     })
     .catch(err => {
         console.log(err); // 打印错误信息
@@ -1226,7 +1260,7 @@ exports.getGroupMsg = function (data, res) {
         this.updateGroupMsg({ uid: uid, gid: gid }) // 调用更新消息状态函数
     })
     .then(result => {
-        console.log('更新成功！', result); // 打印成功信息
+        // console.log('更新成功！', result); // 打印成功信息
     })
     .catch(err => {
         console.log(err); // 打印错误信息

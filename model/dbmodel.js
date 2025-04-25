@@ -50,7 +50,6 @@ const GroupSchema = new Schema({
 const GroupUserSchema = new Schema({
     groupID: { type: Schema.Types.ObjectId, ref: 'Group' }, // 群ID
     userID: { type: Schema.Types.ObjectId, ref: 'User' }, // 用户ID
-    tip: { type: Number, default: 0 }, // 提示 未读消息
     time: { type: Date, default: Date.now }, // 加入时间
     lastTime: { type: Date, default: Date.now }, // 最后一次聊天时间
     shield: { type: Number, default: 0 }, // 是否屏蔽 0-不屏蔽 1-屏蔽
@@ -63,6 +62,7 @@ const GroupMessageSchema = new Schema({
     message: { type: String }, // 消息内容
     types: { type: Number }, // 消息类型 0-文本 1-图片 2-音频连接
     time: { type: Date, default: Date.now }, // 发送时间
+    state: { type: Number, default: 0 } // 消息状态 0-已读 1-未读
 });
 // 导出 UserInfo 模型
 module.exports = db.model('User', UserSchem, 'userInfo') // 用户模型, // 用户模型

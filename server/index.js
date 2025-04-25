@@ -12,7 +12,7 @@ exports.getFriend = function (req, res) {
 
 // 获取群列表
 exports.getGroup = function (req, res) {
-    console.log('群组请求接收:', req.body); // 打印请求体
+    // console.log('群组请求接收:', req.body); // 打印请求体
     const { state } = req.body; // 解构获取请求体中的数据
     if (state == 0) {
         dbserver.getGroupInMsg(req.body, res); // 调用查询用户函数

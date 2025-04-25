@@ -15,12 +15,12 @@ module.exports = function(io) {
             console.log('发送消息：', msg)
             console.log('发送用户：', fromid)
             console.log('接收用户：', toid)
-            dbServer.updateFriendLastTime({ uid: fromid, fid: toid }) // 更新最后一条消息时间
+            dbServer.updateFriendLastTime({ uid: fromid, fid: toid })
             dbServer.insertMsg(fromid, toid, msg.message, msg.types)
             if (users[toid]) {
-                socket.to(users[toid]).emit('msgFront', msg, fromid) // 发送消息给自己   
+                socket.to(users[toid]).emit('msgFront', msg, fromid) // 发送给其他客户端
             }
-            socket.emit('msgChatRoomFront', msg, toid)
+            socket.emit('msgFront', msg, toid) // 发送给自己
         })
 
         socket.on('disconnecting', () => {
@@ -51,7 +51,8 @@ module.exports = function(io) {
                 groupID: groupID,
                 userID: userID,
                 message: msg.message,
-                types: msg.types
+                types: msg.types,
+                state: 1
             })
             dbServer.updateGroupMessageLastTime({ groupID: groupID }) // 更新最后一条消息时间
             socket.to(groupID).emit('groupMsgFront', {
@@ -60,14 +61,14 @@ module.exports = function(io) {
                 groupID: groupID,
                 name: name,
                 imgurl: imgurl
-            }) // 发送消息给群组
-            socket.emit('groupMsgChatRoomFront', {
+            }) // 发送给其他客户端
+            socket.emit('groupMsgFront', {
                 msg: msg,
                 userID: userID,
                 groupID: groupID,
                 name: name,
                 imgurl: imgurl
-            }) // 发送消息给自己 
+            }) // 发送给自己
         })
 
         socket.on('leaveChatRoomServer', (uid, fid) => {
