@@ -459,7 +459,7 @@ exports.updateFriendLastTime = function (data, res) {
     console.log(Friend)
     Friend.updateMany(wherestr, updatestr) // 更新好友最后通讯时间
     .then(result => {
-        console.log('好友最后通讯时间更新成功！', result); // 打印成功信息
+        // console.log('好友最后通讯时间更新成功！', result); // 打印成功信息
     })
     .catch(err => {
         console.log(err); // 打印错误信息
@@ -478,11 +478,11 @@ exports.insertMsg = function(uid, fid, msg, type, res) {
         'time': new Date(), // 消息时间
         'state': 1 // 消息状态  0已读 1未读
     }
-    console.log('添加消息数据:', data); // 打印添加消息数据
+    // console.log('添加消息数据:', data); // 打印添加消息数据
     let message = new Message(data) // 创建消息模型
     message.save()
     .then(result => {
-        console.log('添加消息成功！'); // 打印成功信息
+        // console.log('添加消息成功！'); // 打印成功信息
         if (res) {
             res.send({
                 code: 200,
@@ -718,7 +718,7 @@ exports.getGroupInMsg = async (data, res) => {
     try {
         let group = await this.getOnlyGroup(uid) // 获取用户列表
         for(let i = 0; i < group.length; i++) {
-            let result = await this.getOneGroupMsg({ gid: group[i].id}) // 获取一对一消息
+            let result = await this.getOneGroupMsg({ gid: group[i].id})
             result = result || {}
             if (result.types == 0) {
                 
@@ -1012,12 +1012,16 @@ exports.getOnlyGroup = function(uid, res) {
             'userID': uid // 用户ID
         })
         .populate('groupID')
+        .populate('userID') // 关联用户ID
         .sort({ 'lastTime': -1 }) // 按时间排序
         .exec()
         .then(result => {
+            // console.log('查询群列表成功！', result); // 打印成功信息
             let data = result.map(item => {
                 return {
                     id: item.groupID._id, // 群ID
+                    username: item.userID.name, // 用户名称
+                    userID: item.userID._id, // 用户ID
                     name: item.groupID.name, // 群名称
                     markname: item.name, // 群备注名
                     imgurl: item.groupID.imgurl, // 群头像
@@ -1192,10 +1196,7 @@ exports.getGroupMsg = function (data, res) {
     const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
     GroupMessage.find({})
     .where({
-        $or: [{
-            'userID': uid, // 用户ID
-            'groupID': gid // 群ID
-        }]
+        'groupID': gid // 群ID
     })
     .sort({ 'time': -1 }) // 按时间排序
     .skip(skipNum) // 跳过指定数量
@@ -1203,7 +1204,7 @@ exports.getGroupMsg = function (data, res) {
     .limit(pageSize) // 限制返回数量
     .exec()
     .then(result => {
-        console.log('聊天消息', result)
+        // console.log('聊天消息', result)
         const data = result.map(item => {
             return {
                 id: item._id, // 消息ID

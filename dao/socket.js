@@ -18,9 +18,9 @@ module.exports = function(io) {
             dbServer.updateFriendLastTime({ uid: fromid, fid: toid }) // 更新最后一条消息时间
             dbServer.insertMsg(fromid, toid, msg.message, msg.types)
             if (users[toid]) {
-                socket.to(users[toid]).emit('msgChatRoomFront', msg, fromid) // 发送消息给自己   
+                socket.to(users[toid]).emit('msgFront', msg, fromid) // 发送消息给自己   
             }
-            socket.emit('msgFront', msg, toid)
+            socket.emit('msgChatRoomFront', msg, toid)
         })
 
         socket.on('disconnecting', () => {
@@ -34,6 +34,7 @@ module.exports = function(io) {
         })
 
         socket.on('groupServer', id => {
+            console.log('准备加入群组:', id)
             // 当前已经加入无需加入
             if (socket.rooms.has(id)) {
                 console.log('已经加入该群组:', id)
@@ -52,22 +53,21 @@ module.exports = function(io) {
                 message: msg.message,
                 types: msg.types
             })
-            dbServer.updateGroupMsg({ userID: userID, groupID: groupID }) // 更新最后一条消息时间
             dbServer.updateGroupMessageLastTime({ groupID: groupID }) // 更新最后一条消息时间
-            socket.to(gid).emit('groupMsgChatRoomFront', {
+            socket.to(groupID).emit('groupMsgFront', {
                 msg: msg,
                 userID: userID,
                 groupID: groupID,
                 name: name,
                 imgurl: imgurl
             }) // 发送消息给群组
-            socket.emit('groupMsgFront', {
+            socket.emit('groupMsgChatRoomFront', {
                 msg: msg,
                 userID: userID,
                 groupID: groupID,
                 name: name,
                 imgurl: imgurl
-            }) 
+            }) // 发送消息给自己 
         })
 
         socket.on('leaveChatRoomServer', (uid, fid) => {
