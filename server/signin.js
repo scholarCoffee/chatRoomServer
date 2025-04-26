@@ -1,4 +1,4 @@
-var dbServer = require('../dao/dbserver.js'); // 引入数据操作模块
+var dbServer = require('../dao/dbServer.js'); // 引入数据操作模块
 
 exports.signIn = function (req, res) {
     console.log('登录请求接收:', req.body); // 打印请求体

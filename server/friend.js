@@ -1,4 +1,4 @@
-var dbServer = require('../dao/dbserver.js'); // 引入数据操作模块
+var dbServer = require('../dao/dbServer.js'); // 引入数据操作模块
 
 // 好友申请
 exports.applyFriend = function (req, res) {

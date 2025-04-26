@@ -1,4 +1,4 @@
-var dbserver = require('../dao/dbserver.js'); // 引入数据操作模块
+var dbserver = require('../dao/dbServer.js'); // 引入数据操作模块
 
 exports.getFriend = function (req, res) {
     // console.log('好友请求接收:', req.body); // 打印请求体
@@ -15,7 +15,7 @@ exports.getGroup = function (req, res) {
     // console.log('群组请求接收:', req.body); // 打印请求体
     const { state } = req.body; // 解构获取请求体中的数据
     if (state == 0) {
-        dbserver.getGroupInMsg(req.body, res); // 调用查询用户函数
+        dbserver.getGroupInMsg(req.body, res); // 查询群用户信息
     } else {
         dbserver.getOnlyGroup(req.body, res); // 调用查询用户函数
     }

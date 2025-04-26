@@ -682,13 +682,14 @@ exports.unreadSelfMsg = function(data, res) {
 // 汇总一对一消息未读取
 exports.unreadGroupMsg = function(data, res) {
     return new Promise((resolve) => {
-        const { gid } = data // 解构获取请求体中的数据
+        const { gid, uid } = data // 解构获取请求体中的数据
         let wherestr = {
             'groupID': gid, // 群组ID
+            'userID': uid, // 用户ID
             'state': 1 // 消息状态 
         }
         // console.log('汇总一对一未读消息', wherestr)
-        return resolve(GroupMessage.countDocuments(wherestr)) // 查询未读消息数量
+        return resolve(GroupUser.countDocuments(wherestr)) // 查询未读消息数量
     })
     .then(count => {
         // console.log('查询一对一汇总消息数量：', count); // 打印成功信息
@@ -1146,15 +1147,16 @@ exports.updateGroupMessageLastTime = function(data, res) {
 
 // 群消息状态修改
 exports.updateGroupMsg = function(data, res) {
-    const { gid } = data // 解构获取请求体中的数据
+    const { gid, uid } = data // 解构获取请求体中的数据
     let wherestr = {
         'groupID': gid, // 群ID
+        'userID': uid, // 用户ID
         'state': 1 // 消息状态 
     }
     let updatestr = {
         'state': 0 // 修改消息状态为已读
     }
-    GroupMessage.updateMany(wherestr, updatestr) // 更新消息状态
+    GroupUser.updateMany(wherestr, updatestr) // 更新消息状态
     .then(result => {
         // console.log('更新成功！', result); // 打印成功信息
         if (res) {

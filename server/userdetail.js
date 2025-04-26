@@ -1,4 +1,4 @@
-var dbServer = require('../dao/dbserver.js'); // 引入数据操作模块
+var dbServer = require('../dao/dbServer.js'); // 引入数据操作模块
 
 // 用户详情
 exports.userDetail = function (req, res) {

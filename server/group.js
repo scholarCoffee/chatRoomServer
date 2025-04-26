@@ -1,4 +1,4 @@
-var dbserver = require('../dao/dbserver.js'); // 引入数据操作模块
+var dbserver = require('../dao/dbServer.js'); // 引入数据操作模块
 
 // 新建群
 exports.createGroup = function (req, res) {

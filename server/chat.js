@@ -1,4 +1,4 @@
-var dbserver = require('../dao/dbserver.js'); // 引入数据操作模块
+var dbserver = require('../dao/dbServer.js'); // 引入数据操作模块
 
 exports.getSelfMsg = function (req, res) {
     // console.log('聊天请求接收:', req.body); // 打印请求体
