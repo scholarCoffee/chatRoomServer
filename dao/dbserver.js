@@ -53,12 +53,37 @@ exports.countUserValue = function (data, type, res) {
     });
 }
 
+// 修改用户密码
+exports.updateUserPwd = function (data, res) {
+    const { uid, pwd } = data // 解构获取请求体中的数据
+    let wherestr = {
+        '_id': uid // 用户ID
+    }
+    let updatestr = {
+        'pwd': bcrypt.encryption(pwd) // 加密密码
+    }
+    User.findByIdAndUpdate(wherestr, updatestr, { new: true }) // 更新用户密码
+    .then(result => {
+        console.log('密码修改成功！'); // 打印成功信息
+        res.send({
+            code: 200,
+            msg: '密码修改成功！',
+            data: result // 返回更新后的用户数据
+        }); // 返回成功信息给前端
+    })
+    .catch(err => {
+        console.log(err); // 打印错误信息
+        res.send('密码修改失败！'); // 返回失败信息给前端
+    });
+}
+
 // 用户验证
-exports.userMatch = function (data, pwd, res) {
+exports.userMatch = function (req, res) {
+    const { name, pwd } = req || {} // 解构获取请求体中的数据
     let wherestr = {
         $or: [
-            { 'name': data }, // 用户名
-            { 'email': data } // 邮箱
+            { 'name': name }, // 用户名
+            { 'email': name } // 邮箱
         ]
     }
     let out = {

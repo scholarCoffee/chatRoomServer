@@ -1,25 +1,30 @@
-var signUp = require('../server/signup.js'); // 引入注册模块
-var signIn = require('../server/signin.js'); // 引入登录模块
-var search = require('../server/search.js'); // 引入搜索模块
-var user = require('../server/userdetail.js'); // 引入用户详情模块
-var friend = require('../server/friend.js'); // 引入好友模块
-var index = require('../server/index.js'); // 引入首页模块
-var chat = require('../server/chat.js'); // 引入聊天模块
-var group = require('../server/group.js'); // 引入群模块
+const signUp = require('../server/signUp.js'); // 引入注册模块
+const signIn = require('../server/signIn.js'); // 引入登录模块
+const search = require('../server/search.js'); // 引入搜索模块
+const user = require('../server/userdetail.js'); // 引入用户详情模块
+const friend = require('../server/friend.js'); // 引入好友模块
+const index = require('../server/index.js'); // 引入首页模块
+const chat = require('../server/chat.js'); // 引入聊天模块
+const group = require('../server/group.js'); // 引入群模块
 
 module.exports = function (app) {
     // 注册页面
-    app.post('/signup/add', function (req, res) {
+    app.post('/signUp/register', function (req, res) {
         signUp.signUp(req, res); // 调用注册函数
     });
 
-    // 用户或邮箱是否被占用
-    app.post('/signup/judge', function (req, res) {
+    // 用户是否被占用
+    app.post('/signUp/judge', function (req, res) {
         signUp.judgeValue(req, res); // 调用判断函数
     });
 
+    // 密码修改
+    app.post('/signUp/updatePwd', function (req, res) {
+        signUp.updatePwd(req, res); // 调用修改密码函数
+    });
+    
     // 登录页面
-    app.post('/signin/match', function (req, res) {
+    app.post('/signIn/login', function (req, res) {
         signIn.signIn(req, res); // 调用登录函数
     });
 
