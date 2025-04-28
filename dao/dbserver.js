@@ -55,9 +55,9 @@ exports.countUserValue = function (data, type, res) {
 
 // 修改用户密码
 exports.updateUserPwd = function (data, res) {
-    const { uid, pwd } = data // 解构获取请求体中的数据
+    const { name, pwd } = data // 解构获取请求体中的数据
     let wherestr = {
-        '_id': uid // 用户ID
+        'name': name // 用户ID
     }
     let updatestr = {
         'pwd': bcrypt.encryption(pwd) // 加密密码
